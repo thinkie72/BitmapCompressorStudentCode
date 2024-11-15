@@ -34,8 +34,21 @@ public class BitmapCompressor {
     public static void compress() {
 
         // TODO: complete compress()
+        String s = BinaryStdIn.readString();
+        long n = s.length();
+        int bits = getBits(n);
+        char c = s.charAt(0);
+        BinaryStdOut.write(c, 1);
+        int i = 0;
+        while(s.charAt(i) == c) i++;
+        BinaryStdOut.write(i, );
+
 
         BinaryStdOut.close();
+    }
+
+    private static int getBits(long i) {
+
     }
 
     /**
