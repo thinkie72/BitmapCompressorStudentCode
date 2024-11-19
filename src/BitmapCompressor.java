@@ -16,6 +16,8 @@
  *  1240 bits
  ******************************************************************************/
 
+import java.util.ArrayList;
+
 /**
  *  The {@code BitmapCompressor} class provides static methods for compressing
  *  and expanding a binary bitmap input.
@@ -23,7 +25,7 @@
  *  @author Robert Sedgewick
  *  @author Kevin Wayne
  *  @author Zach Blick
- *  @author YOUR NAME HERE
+ *  @author Tyler Hinkie
  */
 public class BitmapCompressor {
 
@@ -37,18 +39,43 @@ public class BitmapCompressor {
         String s = BinaryStdIn.readString();
         long n = s.length();
         int bits = getBits(n);
+        ArrayList<Integer> ints = new ArrayList<>();
         char c = s.charAt(0);
-        BinaryStdOut.write(c, 1);
-        int i = 0;
-        while(s.charAt(i) == c) i++;
-        BinaryStdOut.write(i, );
+        int entryCount = 0;
+        int index = 1;
+        while (index < n) {
+            int i = 0;
+            while (index < n && s.charAt(index) == c) {
+                i++;
+                index++;
+            }
 
+            index++;
+
+            ints.add(i);
+            entryCount++;
+        }
+
+        BinaryStdOut.write(entryCount, 32);
+
+        BinaryStdOut.write(bits, 32);
+
+        BinaryStdOut.write(c, 1);
+
+
+        for (int i : ints) {
+            BinaryStdOut.write(i, bits);
+        }
 
         BinaryStdOut.close();
     }
 
-    private static int getBits(long i) {
-
+    private static int getBits(long l) {
+        int i = 0;
+        while (Math.pow(2, i) - 1 < l) {
+            i++;
+        }
+        return i;
     }
 
     /**
@@ -56,8 +83,22 @@ public class BitmapCompressor {
      * and writes the results to standard output.
      */
     public static void expand() {
+        int entryCount = BinaryStdIn.readInt();
+        int bits = BinaryStdIn.readInt();
+        boolean isOne = BinaryStdIn.readBoolean();
 
-        // TODO: complete expand()
+        int zeroOrOne;
+        int value;
+
+        for (int i = 0; i < entryCount; i++) {
+            value = BinaryStdIn.readInt(bits);
+            if (isOne) zeroOrOne = 1;
+            else zeroOrOne = 0;
+            for (int j = 0; j < value; j++) {
+                BinaryStdOut.write(zeroOrOne, 1);
+            }
+            isOne = !isOne;
+        }
 
         BinaryStdOut.close();
     }
