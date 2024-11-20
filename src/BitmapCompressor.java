@@ -34,45 +34,47 @@ public class BitmapCompressor {
      * and writes the results to standard output.
      */
     public static void compress() {
-
-        // TODO: complete compress()
-        String s = BinaryStdIn.readString();
-        long n = s.length();
-        int bits = getBits(n);
+        int i = BinaryStdIn.readInt(1);
         ArrayList<Integer> ints = new ArrayList<>();
-        char c = s.charAt(0);
         int entryCount = 0;
-        int index = 1;
-        while (index < n) {
-            int i = 0;
-            while (index < n && s.charAt(index) == c) {
-                i++;
-                index++;
+        int length = 1;
+
+        int compare;
+        while (!BinaryStdIn.isEmpty()) {
+            compare = BinaryStdIn.readInt(1);
+            if (compare == i) length++;
+            else {
+                ints.add(length);
+                entryCount++;
+                length = 1;
+                i = compare;
             }
-
-            index++;
-
-            ints.add(i);
-            entryCount++;
         }
 
+        ints.add(length);
+        entryCount++;
+
+        int maxLength = 0;
+        for (int lengths : ints) {
+            maxLength = Math.max(maxLength, lengths);
+        }
+
+        int bits = getBits(maxLength);
+
         BinaryStdOut.write(entryCount, 32);
-
         BinaryStdOut.write(bits, 32);
+        BinaryStdOut.write(i, 1);
 
-        BinaryStdOut.write(c, 1);
-
-
-        for (int i : ints) {
-            BinaryStdOut.write(i, bits);
+        for (int x : ints) {
+            BinaryStdOut.write(x, bits);
         }
 
         BinaryStdOut.close();
     }
 
-    private static int getBits(long l) {
+    private static int getBits(int maxLength) {
         int i = 0;
-        while (Math.pow(2, i) - 1 < l) {
+        while ((1 << i) - 1 < maxLength) {
             i++;
         }
         return i;
@@ -85,19 +87,15 @@ public class BitmapCompressor {
     public static void expand() {
         int entryCount = BinaryStdIn.readInt();
         int bits = BinaryStdIn.readInt();
-        boolean isOne = BinaryStdIn.readBoolean();
+        int value = BinaryStdIn.readInt(1);
 
-        int zeroOrOne;
-        int value;
-
+        int length;
         for (int i = 0; i < entryCount; i++) {
-            value = BinaryStdIn.readInt(bits);
-            if (isOne) zeroOrOne = 1;
-            else zeroOrOne = 0;
-            for (int j = 0; j < value; j++) {
-                BinaryStdOut.write(zeroOrOne, 1);
+            length = BinaryStdIn.readInt(bits);
+            for (int j = 0; j < length; j++) {
+                BinaryStdOut.write(value, 1);
             }
-            isOne = !isOne;
+            value = 1 - value;
         }
 
         BinaryStdOut.close();
