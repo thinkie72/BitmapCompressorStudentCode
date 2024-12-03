@@ -16,8 +16,6 @@
  *  1240 bits
  ******************************************************************************/
 
-import java.util.ArrayList;
-
 /**
  *  The {@code BitmapCompressor} class provides static methods for compressing
  *  and expanding a binary bitmap input.
@@ -34,50 +32,34 @@ public class BitmapCompressor {
      * and writes the results to standard output.
      */
     public static void compress() {
-        int i = BinaryStdIn.readInt(1);
-        ArrayList<Integer> ints = new ArrayList<>();
-        int entryCount = 0;
-        int length = 1;
+        int max = 255;
+        int value = 0;
+        int check;
+        int count = 0;
 
-        int compare;
         while (!BinaryStdIn.isEmpty()) {
-            compare = BinaryStdIn.readInt(1);
-            if (compare == i) length++;
+            check = BinaryStdIn.readInt(1);
+            if (check == value) count++;
             else {
-                ints.add(length);
-                entryCount++;
-                length = 1;
-                i = compare;
+                while (count > max) {
+                    BinaryStdOut.write(max, 8);
+                    BinaryStdOut.write(0, 8);
+                    count -= max;
+                }
+                BinaryStdOut.write(count, 8);
+                value = 1 - value;
+                count = 1;
             }
         }
 
-        ints.add(length);
-        entryCount++;
-
-        int maxLength = 0;
-        for (int lengths : ints) {
-            maxLength = Math.max(maxLength, lengths);
+       while (count > max) {
+            BinaryStdOut.write(max, 8);
+            BinaryStdOut.write(0, 8);
+            count -= max;
         }
-
-        int bits = getBits(maxLength);
-
-        BinaryStdOut.write(entryCount, 32);
-        BinaryStdOut.write(bits, 32);
-        BinaryStdOut.write(i, 1);
-
-        for (int x : ints) {
-            BinaryStdOut.write(x, bits);
-        }
+        BinaryStdOut.write(count, 8);
 
         BinaryStdOut.close();
-    }
-
-    private static int getBits(int maxLength) {
-        int i = 0;
-        while ((1 << i) - 1 < maxLength) {
-            i++;
-        }
-        return i;
     }
 
     /**
@@ -85,14 +67,12 @@ public class BitmapCompressor {
      * and writes the results to standard output.
      */
     public static void expand() {
-        int entryCount = BinaryStdIn.readInt();
-        int bits = BinaryStdIn.readInt();
-        int value = BinaryStdIn.readInt(1);
-
+        int value = 0;
         int length;
-        for (int i = 0; i < entryCount; i++) {
-            length = BinaryStdIn.readInt(bits);
-            for (int j = 0; j < length; j++) {
+
+        while (!BinaryStdIn.isEmpty()) {
+            length = BinaryStdIn.readInt(8);
+            for (int i = 0; i < length; i++) {
                 BinaryStdOut.write(value, 1);
             }
             value = 1 - value;
